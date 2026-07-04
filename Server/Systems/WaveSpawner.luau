@@ -42,32 +42,6 @@ type WaveSpawnerType = {
 local WaveSpawner = {}
 WaveSpawner.__index = WaveSpawner
 
-local function ensureSkipRemote(): RemoteEvent
-	local remotesRoot = ReplicatedStorage:FindFirstChild("Remotes")
-	if not remotesRoot then
-		remotesRoot = Instance.new("Folder")
-		remotesRoot.Name = "Remotes"
-		remotesRoot.Parent = ReplicatedStorage
-	end
-
-	local playerActions = remotesRoot:FindFirstChild("PlayerActions")
-	if not playerActions then
-		playerActions = Instance.new("Folder")
-		playerActions.Name = "PlayerActions"
-		playerActions.Parent = remotesRoot
-	end
-
-	local remote = playerActions:FindFirstChild("SkipWaveCooldown")
-	if not remote or not remote:IsA("RemoteEvent") then
-		if remote then remote:Destroy() end
-		remote = Instance.new("RemoteEvent")
-		remote.Name = "SkipWaveCooldown"
-		remote.Parent = playerActions
-	end
-
-	return remote :: RemoteEvent
-end
-
 function WaveSpawner.new(world: any): WaveSpawnerType
 	local self = setmetatable({}, WaveSpawner) :: WaveSpawnerType
 	self._world       = world
