@@ -267,6 +267,5 @@ local function resolve(progress: number): (number, number)
 end
 ```
 
-## License
 
 See [LICENSE](./LICENSE).
