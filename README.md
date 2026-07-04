@@ -17,7 +17,7 @@ This framework separates authoritative game simulation (server) from rendering/p
 - Deterministic Catmull-Rom spline pathing, computed independently and identically on server and client
 
 
-**Core principle:** the server owns the authoritative simulation and never sends 3D positions — only scalar `progress` values along a path. Both server and client reconstruct world-space position locally from the same deterministic spline, so the network only ever carries the minimum state needed to keep both sides in sync.
+**Core principle:** the server owns the authoritative simulation and never sends 3D positions - only scalar `progress` values along a path. Both server and client reconstruct world-space position locally from the same deterministic spline, so the network only ever carries the minimum state needed to keep both sides in sync.
 
 ![demo](./tdShowcase.gif)
 
@@ -45,7 +45,7 @@ The server only sends a correction when real simulated progress drifts from what
 Simulation runs at a fixed 60Hz for deterministic gameplay logic; network flushes happen at 20Hz via a separate accumulator in the same loop. Combined with dead reckoning, this reduces network traffic well below a naive "sync every tick" approach.
 
 ### Dirty-flag delta replication
-Each enemy record tracks independent `dirty`, `speedDirty`, and `hpDirty` flags. Every network tick, only entities whose flags are set get drained, packed, and sent — bandwidth scales with the number of *changes*, not the number of *entities*.
+Each enemy record tracks independent `dirty`, `speedDirty`, and `hpDirty` flags. Every network tick, only entities whose flags are set get drained, packed, and sent - bandwidth scales with the number of *changes*, not the number of *entities*.
 
 ### Binary packing over `buffer`
 Instead of sending Lua tables (which carry per-key serialization overhead), all replication data is packed into fixed-width binary layouts by hand — e.g. a spawn entry is `u16 id, u8 pathId, u8 typeId, f16 speed, u16 maxHp` (8 bytes total).
@@ -57,7 +57,7 @@ Instead of sending Lua tables (which carry per-key serialization overhead), all 
 Changed entities are packed into a single buffer per remote call, up to a configurable batch cap; oversized batches are automatically chunked. This avoids both per-entity call overhead and unbounded packet sizes.
 
 ### Reliable vs. unreliable channels
-Position corrections are sent over an `UnreliableRemoteEvent` since a dropped packet is quickly superseded by the next one. Spawn, death, damage, and speed-change events — which are critical and can't be "caught up" the same way — use reliable ordered `RemoteEvent`s.
+Position corrections are sent over an `UnreliableRemoteEvent` since a dropped packet is quickly superseded by the next one. Spawn, death, damage, and speed-change events - which are critical and can't be "caught up" the same way — use reliable ordered `RemoteEvent`s.
 
 ### Entity ID recycling
 Freed entity IDs are returned to a pool and reused rather than growing an ever-increasing counter, keeping IDs small enough to fit in a `u16` even during long sessions with thousands of spawns.
@@ -69,7 +69,7 @@ Scratch buffers for outgoing batches are allocated once and reused every tick (`
 Enemy `Model` instances are expensive to create/destroy. A pool per enemy type recycles models instead of calling `Instance.new`/`Destroy` on every spawn and death.
 
 ### Precomputed spline sampling
-The expensive part of spline evaluation — building an arc-length lookup table for uniform-speed traversal — happens once when a path loads. Runtime position queries are an O(log n) binary search over that table rather than re-integrating the curve each time.
+The expensive part of spline evaluation - building an arc-length lookup table for uniform-speed traversal - happens once when a path loads. Runtime position queries are an O(log n) binary search over that table rather than re-integrating the curve each time.
 
 ## License
 
