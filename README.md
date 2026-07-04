@@ -19,7 +19,7 @@ This framework separates authoritative game simulation (server) from rendering/p
 
 **Core principle:** the server owns the authoritative simulation and never sends 3D positions — only scalar `progress` values along a path. Both server and client reconstruct world-space position locally from the same deterministic spline, so the network only ever carries the minimum state needed to keep both sides in sync.
 
-![demo](./tdShowcase)
+![demo](.tdShowcase)
 
 ## Data flow
 
