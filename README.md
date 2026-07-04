@@ -29,6 +29,44 @@ This framework separates authoritative game simulation (server) from rendering/p
 4. **Client receive** — `StateReceiver` unpacks each batch and updates `ClientWorld` (spawn, correct progress, change speed, apply damage, remove on death).
 5. **Client render (every frame)** — `Interpolation` extrapolates each enemy's visual position via extrapolation, `AnimationSystem` converts that into a world-space transform via the shared spline sampler and moves the pooled model, `VFXSystem` layers on cosmetic elements.
 
+## Customization
+
+Waves are defined declaratively in WaveDefinitions.lua — no code changes are needed to add or reshape a wave. A single WaveGroup entry supports several shorthand forms that get normalized internally, so simple and complex waves use the same structure.
+
+Single enemy type, single count
+
+lua{ enemyType = "template", count = 20 }
+
+Multiple enemy types with matching counts
+
+Types and counts are paired by index — useful for mixed waves without writing a separate group per type:
+
+lua{ enemyType = {"template", "ind3"}, count = {50, 100} }
+-- 50x template, 100x ind3, on a random shared path
+
+Spawning on every active path at once
+
+The onEach flag repeats the group's spawn count once per registered path, rather than picking a single random path:
+
+lua{ enemyType = {"template", "ind3"}, count = {50, 100}, onEach = true }
+-- 50x template AND 100x ind3, spawned on EVERY path currently registered
+
+Pinning a group to a specific path
+
+lua{ enemyType = "ind6", count = 100, pathId = 1 }
+
+Per-wave spawn timing
+
+spawnDelay and cooldown are optional per wave, falling back to sane defaults if omitted:
+
+lua[3] = {
+    spawns     = { { enemyType = "template", count = 30 } },
+    spawnDelay = 0.1,  -- seconds between individual spawns
+    cooldown   = 5,    -- seconds before the next wave starts after this one clears
+}
+
+All of this is resolved by WaveDefinitions.normalizeGroup, which expands any shorthand (single value, array, onEach) into a flat list of { enemyType, count } pairs before WaveSpawner builds the actual spawn queue with PathSelector. Adding a new enemy type only requires an entry in EnemyRegistry.Definitions (model, base HP, base speed, resistances) — the rest of the pipeline (spawning, replication, pooling, animation) picks it up automatically via its typeId.
+
 ## Optimizations
 
 ### Position is never replicated
